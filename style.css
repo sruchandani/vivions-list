@@ -1,0 +1,292 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f6fa;
+  color: #2d3436;
+  min-height: 100vh;
+}
+
+header {
+  background: #2d6a4f;
+  color: white;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+header h1 { font-size: 2rem; margin-bottom: 0.4rem; }
+header p { opacity: 0.85; font-size: 1rem; }
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Search */
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #dfe6e9;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#searchInput:focus { border-color: #2d6a4f; }
+
+.tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-filter-btn {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  border: 2px solid #2d6a4f;
+  background: white;
+  color: #2d6a4f;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.tag-filter-btn.active,
+.tag-filter-btn:hover {
+  background: #2d6a4f;
+  color: white;
+}
+
+/* Form */
+.form-section { background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+.btn-primary {
+  background: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: #1b4332; }
+
+.btn-secondary {
+  background: #e8f5e9;
+  color: #2d6a4f;
+  border: 1px solid #2d6a4f;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.btn-secondary:hover { background: #c8e6c9; }
+
+.btn-ghost {
+  background: transparent;
+  color: #636e72;
+  border: 1px solid #dfe6e9;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.btn-ghost:hover { background: #f5f6fa; }
+
+.btn-danger {
+  background: transparent;
+  color: #d63031;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+.btn-danger:hover { background: #fff0f0; }
+
+#contractorForm h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #2d6a4f; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #636e72;
+}
+
+.form-grid label.full-width { grid-column: 1 / -1; }
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid #dfe6e9;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus { border-color: #2d6a4f; }
+
+.tag-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag-input-row span { color: #b2bec3; font-size: 0.85rem; }
+.tag-input-row input { flex: 1; min-width: 120px; }
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.tag-chip {
+  background: #e8f5e9;
+  color: #2d6a4f;
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tag-chip button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2d6a4f;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.hidden { display: none !important; }
+
+/* Contractor Cards */
+.results-info {
+  font-size: 0.88rem;
+  color: #636e72;
+  margin-bottom: 0.25rem;
+}
+
+.contractor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.contractor-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.contractor-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #2d3436;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.card-tag {
+  background: #e8f5e9;
+  color: #2d6a4f;
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.card-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.88rem;
+  color: #636e72;
+}
+
+.card-contacts a { color: #2d6a4f; text-decoration: none; }
+.card-contacts a:hover { text-decoration: underline; }
+
+.card-notes {
+  font-size: 0.85rem;
+  color: #636e72;
+  font-style: italic;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 0.4rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #b2bec3;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 0.4rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: #b2bec3;
+  padding: 3rem 1rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  header h1 { font-size: 1.5rem; }
+}

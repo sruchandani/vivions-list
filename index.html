@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neighborhood Contractors</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🏘️ Vivion's List</h1>
+    <p>Find and share trusted local services on our street</p>
+  </header>
+
+  <main>
+    <!-- Search -->
+    <section class="search-section">
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by name, service, or tag..."
+        aria-label="Search contractors"
+      />
+      <div id="tagFilters" class="tag-filters"></div>
+    </section>
+
+    <!-- Add Contractor Form -->
+    <section class="form-section">
+      <button id="toggleFormBtn" class="btn-primary">+ Add a Contractor</button>
+      <form id="contractorForm" class="hidden" aria-label="Add contractor form">
+        <h2>Add a Contractor</h2>
+        <div class="form-grid">
+          <label>
+            Name / Company *
+            <input type="text" id="name" required placeholder="e.g. Joe's Landscaping" />
+          </label>
+          <label>
+            Phone
+            <input type="tel" id="phone" placeholder="e.g. 555-123-4567" />
+          </label>
+          <label>
+            Email
+            <input type="email" id="email" placeholder="e.g. joe@example.com" />
+          </label>
+          <label>
+            Website
+            <input type="url" id="website" placeholder="e.g. https://joeslandscaping.com" />
+          </label>
+          <label class="full-width">
+            Service Tags *
+            <div class="tag-input-row">
+              <select id="tagSelect">
+                <option value="">-- Pick a common tag --</option>
+                <option>Landscaping</option>
+                <option>Roofing</option>
+                <option>Plumbing</option>
+                <option>Electrical</option>
+                <option>HVAC</option>
+                <option>Painting</option>
+                <option>Garage Repair</option>
+                <option>Cleaning</option>
+                <option>Pest Control</option>
+                <option>Fencing</option>
+                <option>Flooring</option>
+                <option>General Handyman</option>
+              </select>
+              <span>or</span>
+              <input type="text" id="customTag" placeholder="Custom tag" />
+              <button type="button" id="addTagBtn" class="btn-secondary">Add Tag</button>
+            </div>
+            <div id="selectedTags" class="selected-tags"></div>
+          </label>
+          <label class="full-width">
+            Notes
+            <textarea id="notes" rows="2" placeholder="Any extra info, e.g. 'Great price, very reliable'"></textarea>
+          </label>
+          <label class="full-width">
+            Added by (your name/house #)
+            <input type="text" id="addedBy" placeholder="e.g. Sarah, #42" />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Save Contractor</button>
+          <button type="button" id="cancelBtn" class="btn-ghost">Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Contractor List -->
+    <section class="list-section">
+      <div id="resultsInfo" class="results-info"></div>
+      <div id="contractorList" class="contractor-grid"></div>
+      <p id="emptyState" class="empty-state hidden">No contractors found. Be the first to add one!</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
