@@ -4,7 +4,7 @@
 const SUPABASE_URL = 'https://thiyvrnprpzfyfxmgubd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoaXl2cm5wcnB6ZnlmeG1ndWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTUyNjUsImV4cCI6MjA5MTMzMTI2NX0.djxGQXdaoyylEoEBAHFvoA8juoZUSNQcT4bgmaZAArk';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // -------------------------------------------------------
 // Auth
@@ -15,14 +15,14 @@ const userEmailEl = document.getElementById('userEmail');
 const mainEl      = document.querySelector('main');
 
 document.getElementById('googleSignInBtn').addEventListener('click', () => {
-  supabase.auth.signInWithOAuth({
+  supabaseClient.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: window.location.href },
   });
 });
 
 document.getElementById('signOutBtn').addEventListener('click', async () => {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   showLogin();
 });
 
@@ -40,7 +40,7 @@ function showApp(user) {
 }
 
 // Listen for auth state changes (handles redirect callback too)
-supabase.auth.onAuthStateChange((_event, session) => {
+supabaseClient.auth.onAuthStateChange((_event, session) => {
   if (session?.user) {
     showApp(session.user);
     init();
@@ -54,7 +54,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
 // -------------------------------------------------------
 const db = {
   async getAll() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('contractors')
       .select('*')
       .order('created_at', { ascending: false });
@@ -62,7 +62,7 @@ const db = {
     return data;
   },
   async insert(row) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('contractors')
       .insert(row)
       .select()
@@ -71,7 +71,7 @@ const db = {
     return data;
   },
   async remove(id) {
-    const { error } = await supabase.from('contractors').delete().eq('id', id);
+    const { error } = await supabaseClient.from('contractors').delete().eq('id', id);
     if (error) throw error;
   },
 };
