@@ -1,45 +1,80 @@
 // -------------------------------------------------------
-// SUPABASE CONFIG — paste your values from Project Settings → API
+// SUPABASE CONFIG
 // -------------------------------------------------------
 const SUPABASE_URL = 'https://thiyvrnprpzfyfxmgubd.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRoaXl2cm5wcnB6ZnlmeG1ndWJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTUyNjUsImV4cCI6MjA5MTMzMTI2NX0.djxGQXdaoyylEoEBAHFvoA8juoZUSNQcT4bgmaZAArk';
 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 // -------------------------------------------------------
-// Minimal Supabase REST client (no npm needed)
+// Auth
+// -------------------------------------------------------
+const loginScreen = document.getElementById('loginScreen');
+const headerUser  = document.getElementById('headerUser');
+const userEmailEl = document.getElementById('userEmail');
+const mainEl      = document.querySelector('main');
+
+document.getElementById('googleSignInBtn').addEventListener('click', () => {
+  supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href },
+  });
+});
+
+document.getElementById('signOutBtn').addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  showLogin();
+});
+
+function showLogin() {
+  loginScreen.classList.remove('hidden');
+  mainEl.classList.add('hidden');
+  headerUser.classList.add('hidden');
+}
+
+function showApp(user) {
+  loginScreen.classList.add('hidden');
+  mainEl.classList.remove('hidden');
+  headerUser.classList.remove('hidden');
+  userEmailEl.textContent = user.email;
+}
+
+// Listen for auth state changes (handles redirect callback too)
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session?.user) {
+    showApp(session.user);
+    init();
+  } else {
+    showLogin();
+  }
+});
+
+// -------------------------------------------------------
+// DB helpers — now uses supabase-js (auth token auto-attached)
 // -------------------------------------------------------
 const db = {
   async getAll() {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/contractors?order=created_at.desc`, {
-      headers: headers(),
-    });
-    if (!res.ok) throw await res.json();
-    return res.json();
+    const { data, error } = await supabase
+      .from('contractors')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
   },
   async insert(row) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/contractors`, {
-      method: 'POST',
-      headers: { ...headers(), 'Prefer': 'return=representation' },
-      body: JSON.stringify(row),
-    });
-    if (!res.ok) throw await res.json();
-    return res.json();
+    const { data, error } = await supabase
+      .from('contractors')
+      .insert(row)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
   },
   async remove(id) {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/contractors?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: headers(),
-    });
-    if (!res.ok) throw await res.json();
+    const { error } = await supabase.from('contractors').delete().eq('id', id);
+    if (error) throw error;
   },
 };
-
-function headers() {
-  return {
-    'apikey': SUPABASE_ANON_KEY,
-    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-    'Content-Type': 'application/json',
-  };
-}
 
 // -------------------------------------------------------
 // App state
@@ -48,19 +83,18 @@ let contractors = [];
 let selectedTags = [];
 let activeFilterTag = null;
 
-// --- DOM refs ---
-const searchInput = document.getElementById('searchInput');
-const contractorList = document.getElementById('contractorList');
-const emptyState = document.getElementById('emptyState');
-const resultsInfo = document.getElementById('resultsInfo');
-const contractorForm = document.getElementById('contractorForm');
-const toggleFormBtn = document.getElementById('toggleFormBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const addTagBtn = document.getElementById('addTagBtn');
-const tagSelect = document.getElementById('tagSelect');
-const customTagInput = document.getElementById('customTag');
+const searchInput          = document.getElementById('searchInput');
+const contractorList       = document.getElementById('contractorList');
+const emptyState           = document.getElementById('emptyState');
+const resultsInfo          = document.getElementById('resultsInfo');
+const contractorForm       = document.getElementById('contractorForm');
+const toggleFormBtn        = document.getElementById('toggleFormBtn');
+const cancelBtn            = document.getElementById('cancelBtn');
+const addTagBtn            = document.getElementById('addTagBtn');
+const tagSelect            = document.getElementById('tagSelect');
+const customTagInput       = document.getElementById('customTag');
 const selectedTagsContainer = document.getElementById('selectedTags');
-const tagFiltersContainer = document.getElementById('tagFilters');
+const tagFiltersContainer  = document.getElementById('tagFilters');
 
 // --- Form toggle ---
 toggleFormBtn.addEventListener('click', () => {
@@ -70,7 +104,7 @@ toggleFormBtn.addEventListener('click', () => {
 
 cancelBtn.addEventListener('click', resetForm);
 
-// --- Tag management in form ---
+// --- Tag management ---
 addTagBtn.addEventListener('click', () => {
   const val = (tagSelect.value || customTagInput.value).trim();
   if (val && !selectedTags.includes(val)) {
@@ -98,33 +132,29 @@ function removeTag(tag) {
 // --- Form submit ---
 contractorForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (selectedTags.length === 0) {
-    alert('Please add at least one service tag.');
-    return;
-  }
+  if (selectedTags.length === 0) { alert('Please add at least one service tag.'); return; }
 
   const submitBtn = contractorForm.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   submitBtn.textContent = 'Saving...';
 
   try {
-    const row = {
-      name: document.getElementById('name').value.trim(),
-      phone: document.getElementById('phone').value.trim() || null,
-      email: document.getElementById('email').value.trim() || null,
-      website: document.getElementById('website').value.trim() || null,
-      tags: [...selectedTags],
-      notes: document.getElementById('notes').value.trim() || null,
+    const saved = await db.insert({
+      name:     document.getElementById('name').value.trim(),
+      phone:    document.getElementById('phone').value.trim() || null,
+      email:    document.getElementById('email').value.trim() || null,
+      website:  document.getElementById('website').value.trim() || null,
+      tags:     [...selectedTags],
+      notes:    document.getElementById('notes').value.trim() || null,
       added_by: document.getElementById('addedBy').value.trim() || null,
       added_on: new Date().toLocaleDateString(),
-    };
-    const [saved] = await db.insert(row);
+    });
     contractors.unshift(saved);
     resetForm();
     renderAll();
   } catch (err) {
     console.error(err);
-    alert('Failed to save. Check your Supabase config.');
+    alert('Failed to save.');
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Save Contractor';
@@ -165,15 +195,13 @@ function getFiltered() {
 
 searchInput.addEventListener('input', renderAll);
 
-// --- Tag filter buttons ---
 function renderTagFilters() {
   const allTags = [...new Set(contractors.flatMap(c => c.tags || []))].sort();
   tagFiltersContainer.innerHTML = allTags.map(tag => `
-    <button
-      class="tag-filter-btn ${activeFilterTag === tag ? 'active' : ''}"
-      onclick="setTagFilter('${escHtml(tag)}')"
-      aria-pressed="${activeFilterTag === tag}"
-    >${escHtml(tag)}</button>
+    <button class="tag-filter-btn ${activeFilterTag === tag ? 'active' : ''}"
+      onclick="setTagFilter('${escHtml(tag)}')" aria-pressed="${activeFilterTag === tag}">
+      ${escHtml(tag)}
+    </button>
   `).join('');
 }
 
@@ -182,7 +210,6 @@ function setTagFilter(tag) {
   renderAll();
 }
 
-// --- Render cards ---
 function renderAll() {
   renderTagFilters();
   const filtered = getFiltered();
@@ -207,8 +234,8 @@ function renderAll() {
         ${(c.tags || []).map(t => `<span class="card-tag">${escHtml(t)}</span>`).join('')}
       </div>
       <div class="card-contacts">
-        ${c.phone ? `<span>📞 <a href="tel:${escHtml(c.phone)}">${escHtml(c.phone)}</a></span>` : ''}
-        ${c.email ? `<span>✉️ <a href="mailto:${escHtml(c.email)}">${escHtml(c.email)}</a></span>` : ''}
+        ${c.phone   ? `<span>📞 <a href="tel:${escHtml(c.phone)}">${escHtml(c.phone)}</a></span>` : ''}
+        ${c.email   ? `<span>✉️ <a href="mailto:${escHtml(c.email)}">${escHtml(c.email)}</a></span>` : ''}
         ${c.website ? `<span>🌐 <a href="${escHtml(c.website)}" target="_blank" rel="noopener">Website</a></span>` : ''}
       </div>
       ${c.notes ? `<p class="card-notes">"${escHtml(c.notes)}"</p>` : ''}
@@ -225,23 +252,14 @@ function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// --- Loading state ---
-function setLoading(on) {
-  contractorList.innerHTML = on ? '<p style="color:#b2bec3;padding:2rem;grid-column:1/-1">Loading...</p>' : '';
-  emptyState.classList.add('hidden');
-}
-
-// --- Init ---
 async function init() {
-  setLoading(true);
+  contractorList.innerHTML = '<p style="color:#b2bec3;padding:2rem;grid-column:1/-1">Loading...</p>';
   try {
     contractors = await db.getAll();
   } catch (err) {
     console.error(err);
-    contractorList.innerHTML = '<p style="color:#d63031;padding:2rem;grid-column:1/-1">Could not load data. Check your Supabase config in app.js.</p>';
+    contractorList.innerHTML = '<p style="color:#d63031;padding:2rem;grid-column:1/-1">Could not load data.</p>';
     return;
   }
   renderAll();
 }
-
-init();

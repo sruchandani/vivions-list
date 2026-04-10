@@ -7,9 +7,30 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+  <!-- Login screen -->
+  <div id="loginScreen" class="login-screen hidden">
+    <div class="login-card">
+      <h1>🏘️ Vivion's List</h1>
+      <p>Sign in to access your neighborhood contractor list</p>
+      <button id="googleSignInBtn" class="btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="20" height="20" />
+        Sign in with Google
+      </button>
+    </div>
+  </div>
+
   <header>
-    <h1>🏘️ Vivion's List</h1>
-    <p>Find and share trusted local services on our street</p>
+    <div class="header-inner">
+      <div>
+        <h1>🏘️ Vivion's List</h1>
+        <p>Find and share trusted local services on our street</p>
+      </div>
+      <div class="header-user hidden" id="headerUser">
+        <span id="userEmail"></span>
+        <button id="signOutBtn" class="btn-ghost-sm">Sign out</button>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -94,6 +115,7 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
 </body>
 </html>
